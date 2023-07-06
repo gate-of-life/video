@@ -1,0 +1,81 @@
+<script setup>
+import { useForm } from '@inertiajs/vue3'
+const props = defineProps({
+    user: Object
+})
+const form = useForm({
+    name: props.user.name,
+    phone: props.user.phone,
+    image: '',
+})
+const acceptImage = (event) => {
+    form.image = event.target.files[0]
+    document.getElementById('imageview').src = window.URL.createObjectURL(event.target.files[0])
+}
+const submit = () => {
+    form.post(route('user.profile.update'), {
+        onFinish: () => {
+            form.reset()
+        },
+    })
+}
+</script>
+<script>
+import UserLayout from '@/Layouts/UserLayout.vue'
+export default {
+    layout: UserLayout
+}
+</script>
+    
+<template>
+    <div class="pt-3">
+        <div class="card">
+            <form @submit.prevent="submit">
+                <div class="row">
+                    <div class="col-md-6 offset-md-3">
+                        <div class="text-center my-5">
+                            <img id="imageview" v-if="user.image"
+                                :src="'https://gateoflife.net/storage/user/image/' + user.image" class="rounded"
+                                style="width: 25%" alt="">
+                            <img id="imageview" v-else :src="'/storage/user/image/default.png'" class="rounded"
+                                style="width: 25%" alt="image">
+                            <div class="text-center m-3">
+                                <input type="file" style="width: 100px" accept="image/*" @input="acceptImage" />
+                                <progress v-if="form.progress" :value="form.progress.percentage" max="100">
+                                    {{ form.progress.percentage }}%
+                                </progress>
+                            </div>
+                        </div>
+                        <ul class="list-group list-group-unbordered">
+                            <li class="list-group-item">
+                                <div class="input-group">
+                                    Name
+                                    <input id="name" type="text" class="ml-5 form-control text-right" v-model="form.name"
+                                        name="name" placeholder="Name" required autocomplete="name">
+                                </div>
+                                <InputError :message="form.errors.name"></InputError>
+                            </li>
+                            <li class="list-group-item">
+                                <div class="input-group">
+                                    Phone
+                                    <input id="phone" type="text" class="ml-5 form-control text-right" v-model="form.phone"
+                                        name="phone" placeholder="Phone" autocomplete="phone">
+                                </div>
+                                <InputError :message="form.errors.phone"></InputError>
+                            </li>
+                            <li class="list-group-item my-2">
+                                Email <a class="float-right">{{ user.email }}</a>
+                            </li>
+                        </ul>
+                        <div class="text-right my-5">
+                            <Link :href="route('user.profile.show')" class="btn btn-outline-primary">Back
+                            </Link>
+                            <button type="submit" class="btn btn-danger ml-2">Update</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</template>
+    
